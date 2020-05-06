@@ -48,6 +48,8 @@ import javax.servlet.http.HttpServlet;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
+import static javax.servlet.http.HttpServletResponse.SC_SWITCHING_PROTOCOLS;
+
 /**
  * @author Arun Gupta
  */
@@ -70,10 +72,10 @@ public class UpgradeServlet extends HttpServlet {
 //            response.setContentType("text/plain");
             System.out.println("XXX doGet, expected 'Upgrade' header is 'echo',  actual: '" + request.getHeader("Upgrade") + "'");
             if (request.getHeader("Upgrade").equals("echo")) {
-//                response.setStatus(SC_SWITCHING_PROTOCOLS);
-//                response.setHeader("Connection", "Upgrade");
-//                response.setHeader("Upgrade", "echo");
-//                request.upgrade(MyProtocolHandler.class);
+                response.setStatus(SC_SWITCHING_PROTOCOLS);
+                response.setHeader("Connection", "Upgrade");
+                response.setHeader("Upgrade", "echo");
+                request.upgrade(MyProtocolHandler.class);
 //
                 System.out.println("Request upgraded to MyProtocolHandler");
                 out.println("Request succeeded.");
