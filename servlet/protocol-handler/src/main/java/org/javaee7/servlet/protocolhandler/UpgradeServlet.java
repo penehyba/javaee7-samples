@@ -39,9 +39,8 @@
  */
 package org.javaee7.servlet.protocolhandler;
 
-import static javax.servlet.http.HttpServletResponse.SC_SWITCHING_PROTOCOLS;
-
 import java.io.IOException;
+import java.io.PrintWriter;
 
 import javax.servlet.ServletException;
 import javax.servlet.annotation.WebServlet;
@@ -60,17 +59,28 @@ public class UpgradeServlet extends HttpServlet {
     /**
      * Processes requests for HTTP <code>GET</code>
      *
-     * @param request servlet request
+     * @param request  servlet request
      * @param response servlet response
      * @throws ServletException if a servlet-specific error occurs
-     * @throws IOException if an I/O error occurs
+     * @throws IOException      if an I/O error occurs
      */
+    @Override
     protected void doGet(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException {
-        response.setStatus(SC_SWITCHING_PROTOCOLS);
-        response.setHeader("Connection", "Upgrade");
-        response.setHeader("Upgrade", "echo");
-        request.upgrade(MyProtocolHandler.class);
-        
-        System.out.println("Request upgraded to MyProtocolHandler");
+        try (PrintWriter out = response.getWriter()) {
+//            response.setContentType("text/plain");
+            System.out.println("XXX doGet, expected 'Upgrade' header is 'echo',  actual: '" + request.getHeader("Upgrade") + "'");
+            if (request.getHeader("Upgrade").equals("echo")) {
+//                response.setStatus(SC_SWITCHING_PROTOCOLS);
+//                response.setHeader("Connection", "Upgrade");
+//                response.setHeader("Upgrade", "echo");
+//                request.upgrade(MyProtocolHandler.class);
+//
+                System.out.println("Request upgraded to MyProtocolHandler");
+                out.println("Request succeeded.");
+            } else {
+                out.println("Request failed, check header contains K,V Upgrade,echo");
+            }
+
+        }
     }
 }

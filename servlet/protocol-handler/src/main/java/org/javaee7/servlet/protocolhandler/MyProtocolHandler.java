@@ -51,6 +51,7 @@ public class MyProtocolHandler implements HttpUpgradeHandler {
     @Override
     public void init(WebConnection webConnection) {
         try {
+            System.out.println("XXX Inside init of MyProtocolHandler.");
             webConnection.getOutputStream().write(("In protocol handler" + "\n").getBytes());
             webConnection.getOutputStream().close();
         } catch (Exception ex) {
@@ -60,6 +61,7 @@ public class MyProtocolHandler implements HttpUpgradeHandler {
 
     @Override
     public void destroy() {
+        System.out.println("XXX called destroy on MyProtocolHandler");
         // Nothing to do
     }
 }

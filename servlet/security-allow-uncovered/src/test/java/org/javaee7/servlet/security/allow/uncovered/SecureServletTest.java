@@ -1,16 +1,13 @@
 package org.javaee7.servlet.security.allow.uncovered;
 
-import static com.gargoylesoftware.htmlunit.HttpMethod.POST;
-import static com.gargoylesoftware.htmlunit.HttpMethod.PUT;
-import static org.javaee7.ServerOperations.addUsersToContainerIdentityStore;
-import static org.jboss.shrinkwrap.api.ShrinkWrap.create;
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertNotEquals;
-import static org.junit.Assert.assertTrue;
-
 import java.io.File;
 import java.net.URL;
 
+import com.gargoylesoftware.htmlunit.DefaultCredentialsProvider;
+import com.gargoylesoftware.htmlunit.FailingHttpStatusCodeException;
+import com.gargoylesoftware.htmlunit.TextPage;
+import com.gargoylesoftware.htmlunit.WebClient;
+import com.gargoylesoftware.htmlunit.WebRequest;
 import org.jboss.arquillian.container.test.api.Deployment;
 import org.jboss.arquillian.junit.Arquillian;
 import org.jboss.arquillian.test.api.ArquillianResource;
@@ -20,11 +17,13 @@ import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 
-import com.gargoylesoftware.htmlunit.DefaultCredentialsProvider;
-import com.gargoylesoftware.htmlunit.FailingHttpStatusCodeException;
-import com.gargoylesoftware.htmlunit.TextPage;
-import com.gargoylesoftware.htmlunit.WebClient;
-import com.gargoylesoftware.htmlunit.WebRequest;
+import static com.gargoylesoftware.htmlunit.HttpMethod.GET;
+import static com.gargoylesoftware.htmlunit.HttpMethod.POST;
+import static com.gargoylesoftware.htmlunit.HttpMethod.PUT;
+import static org.javaee7.ServerOperations.addUsersToContainerIdentityStore;
+import static org.jboss.shrinkwrap.api.ShrinkWrap.create;
+import static org.junit.Assert.assertNotEquals;
+import static org.junit.Assert.assertTrue;
 
 /**
  * @author Arun Gupta
@@ -69,9 +68,22 @@ public class SecureServletTest {
 
     @Test
     public void testGetMethod() throws Exception {
+        System.out.println("XXX Starting test testGetMethod");
         webClient.setCredentialsProvider(correctCreds);
-        TextPage page = webClient.getPage(base + "/SecureServlet");
-        assertEquals("my GET", page.getContent());
+        WebRequest request = new WebRequest(new URL(base + "SecureServlet"), GET);
+
+        TextPage page = null;
+        try {
+            page = webClient.getPage(request);
+            System.out.println(page.getContent());
+
+            assertTrue(
+                    "GET method could not be called even without deny-uncovered-http-methods",
+                    page.getContent().contains("my GET"));
+        } catch (FailingHttpStatusCodeException e) {
+            assertNotEquals("Get denied, but should be allowed", 403, e.getStatusCode());
+            throw e;
+        }
     }
 
     @Test
